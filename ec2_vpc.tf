@@ -1,18 +1,18 @@
 provider "aws" {
-    region = "ap-south-1"
+    region = var.region
 }
 # Create a VPC
 resource "aws_vpc" "demo-vpc" {
     tags = {
-      Name = "demo-vpc"
+      Name = var.vpc
     }
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.cidr_block
 }
 
 # Create a subnet
 resource "aws_subnet" "demo-subnet" {
     vpc_id = aws_vpc.demo-vpc.id
-    cidr_block = "10.0.1.0/24"
+    cidr_block = var.subnet_cidr_block
     
     tags = {
         Name = "demo-subnet"
@@ -32,7 +32,7 @@ resource "aws_route_table" "demo-rt" {
   vpc_id = aws_vpc.demo-vpc.id
   
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.aws_route_table__cidr_block
     gateway_id = aws_internet_gateway.demo-igw.id
   } 
 
@@ -78,9 +78,12 @@ resource "aws_instance" "terraform-ec2" {
   tags = {
     Name = "terraform-ec2"
   }
-  ami                       = "ami-05e00961530ae1b55" 
-  key_name                  = "k8s-key"
-  instance_type             = "t2.micro"
-  subnet_id                 = aws_subnet.demo-subnet.id
-  vpc_security_group_ids    = [aws_security_group.demo-sg.id]
+  ami                           = var.ami  #Ubuntu-22.04
+  key_name                      = var.key_name #PEM-File
+  instance_type                 = var.instance_type
+  subnet_id                     = aws_subnet.demo-subnet.id
+  vpc_security_group_ids        = [aws_security_group.demo-sg.id]
+  associate_public_ip_address   = true
 }
+
+
